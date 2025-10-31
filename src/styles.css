@@ -1,0 +1,166 @@
+:root {
+  --bg: #0f1115;
+  --panel: #161a22;
+  --text: #e8ecf1;
+  --muted: #9aa3af;
+  --accent: #5b9cff;
+  --accent-2: #7dd3fc;
+  --danger: #ef4444;
+  --ok: #22c55e;
+  --ring: rgba(91,156,255,.35);
+  --br: 14px;
+  --gap: 12px;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: linear-gradient(180deg, #0d0f14 0%, #0b0d12 100%);
+  color: var(--text);
+  font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, "Noto Sans", sans-serif;
+}
+
+.container {
+  max-width: 920px;
+  margin: 24px auto 80px;
+  padding: 0 16px;
+}
+
+.header .title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  margin: 0 0 16px;
+}
+
+.section {
+  background: var(--panel);
+  border-radius: var(--br);
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 10px 30px rgba(0,0,0,0.35);
+}
+
+.add-form {
+  display: grid;
+  grid-template-columns: 1fr 180px auto;
+  gap: var(--gap);
+}
+@media (max-width: 640px) {
+  .add-form { grid-template-columns: 1fr; }
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr auto;
+  gap: var(--gap);
+  align-items: center;
+}
+.controls__group { display: flex; gap: 8px; align-items: center; }
+.controls__group--grow { grid-column: span 2; }
+@media (max-width: 800px) {
+  .controls { grid-template-columns: 1fr 1fr; }
+  .controls__group--grow { grid-column: 1 / -1; }
+}
+
+.stats { color: var(--muted); text-align: right; }
+
+.input, .select, .btn {
+  border-radius: 10px;
+  border: 1px solid #283044;
+  background: #0e121a;
+  color: var(--text);
+  padding: 10px 12px;
+  outline: none;
+}
+.input--date { min-width: 160px; }
+.input--search { width: 100%; }
+
+.input:focus, .select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--ring);
+}
+
+.btn {
+  cursor: pointer;
+  transition: transform .04s ease, background .15s ease, border-color .15s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn--primary { background: linear-gradient(180deg, var(--accent) 0%, #3b82f6 100%); border-color: #3b82f6; color: #fff; }
+.btn--ghost   { background: transparent; }
+.btn--danger  { background: #1a0e10; border-color: #3a0c13; color: #ff9aa3; }
+.btn--danger:hover { border-color: var(--danger); color: #ffc2c7; }
+
+.main {
+  background: transparent;
+  padding: 0;
+}
+
+.todo__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.todo-item {
+  background: var(--panel);
+  border: 1px solid #243049;
+  border-radius: var(--br);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  align-items: center;
+}
+.todo-item.dragging {
+  opacity: 0.6;
+  outline: 2px dashed var(--accent-2);
+}
+
+.todo-item__row,
+.todo-item__edit {
+  display: grid;
+  grid-template-columns: 18px 1fr 140px auto auto auto;
+  gap: 10px;
+  align-items: center;
+}
+.todo-item__edit { grid-template-columns: 1fr 160px auto auto; }
+@media (max-width: 600px) {
+  .todo-item__row {
+    grid-template-columns: 18px 1fr auto;
+    grid-auto-flow: row;
+  }
+  .todo-item__date { justify-self: start; order: 3; }
+}
+
+.checkbox { width: 18px; height: 18px; accent-color: var(--ok); }
+
+.todo-item__title { font-weight: 600; }
+.todo-item__date  { color: var(--muted); font-size: 12px; }
+
+.todo-item--done .todo-item__title {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+.todo-item--done .todo-item__date {
+  color: #8b94a6;
+}
+
+.todo-item__handle {
+  width: 18px; height: 18px;
+  display: inline-block;
+  background:
+    linear-gradient(#8fa3c6 0 0) left 4px top 4px/2px 2px no-repeat,
+    linear-gradient(#8fa3c6 0 0) left 4px center/2px 2px no-repeat,
+    linear-gradient(#8fa3c6 0 0) left 4px bottom 4px/2px 2px no-repeat,
+    linear-gradient(#8fa3c6 0 0) right 4px top 4px/2px 2px no-repeat,
+    linear-gradient(#8fa3c6 0 0) right 4px center/2px 2px no-repeat,
+    linear-gradient(#8fa3c6 0 0) right 4px bottom 4px/2px 2px no-repeat;
+  opacity: .8;
+}
+.todo-item[draggable="true"] .todo-item__handle { cursor: grab; }
+.todo-item[draggable="true"]:active .todo-item__handle { cursor: grabbing; }
+
+.spacer { flex: 1; }
