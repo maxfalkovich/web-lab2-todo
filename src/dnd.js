@@ -7,7 +7,10 @@ export function attachDnD(listEl, options) {
 
   listEl.addEventListener('dragstart', (e) => {
     if (!enabled()) { e.preventDefault(); return; }
-    const li = e.target.closest('li[data-id]');
+    const handle = e.target.closest('.todo-item__handle');
+    if (!handle) { e.preventDefault(); return; }
+
+    const li = handle.closest('li[data-id]');
     if (!li) { e.preventDefault(); return; }
     draggedLi = li;
     e.dataTransfer.effectAllowed = 'move';
@@ -18,6 +21,11 @@ export function attachDnD(listEl, options) {
   listEl.addEventListener('dragend', () => {
     draggedLi?.classList.remove('dragging');
     draggedLi = null;
+  });
+
+  listEl.addEventListener('dragenter', (e) => {
+    if (!enabled()) return;
+    e.preventDefault();
   });
 
   listEl.addEventListener('dragover', (e) => {
