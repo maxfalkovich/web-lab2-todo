@@ -164,8 +164,13 @@ export function buildApp(root, initialView, handlers) {
       dataset: { id: task.id }
     });
 
-    // View mode
-    const handle = el('span', { className: 'todo-item__handle', title: dragEnabled ? 'Перетащите за эти точки' : 'DnD доступен при «Без сортировки»' });
+    const handle = el('span', {
+      className: 'todo-item__handle',
+      text: '⋮⋮',
+      title: dragEnabled ? 'Перетащите для изменения порядка' : 'DnD доступен при «Без сортировки»',
+      'aria-hidden': 'true'
+    });
+
     const toggle = el('input', { type: 'checkbox', className: 'checkbox js-toggle', checked: task.completed, title: 'Готово' });
     const title = el('span', { className: 'todo-item__title', text: task.title });
 
@@ -194,7 +199,7 @@ export function buildApp(root, initialView, handlers) {
     li.appendChild(editRow);
 
     // DnD
-    li.draggable = false;
+    li.draggable = !!dragEnabled;
     handle.draggable = !!dragEnabled;
 
     return li;
