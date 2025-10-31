@@ -83,21 +83,9 @@ body {
 }
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
-  border-radius: 10px;
-  border: 1px solid #283044;
-  background: #0e121a;
-  color: var(--text);
-  padding: 12px 14px;
-  min-height: 36px;
-  font-size: 14px;
-  outline: none;
   transition: transform .04s ease, background .15s ease, border-color .15s ease;
 }
-
 .btn:active { transform: translateY(1px); }
 .btn--primary { background: linear-gradient(180deg, var(--accent) 0%, #3b82f6 100%); border-color: #3b82f6; color: #fff; }
 .btn--ghost   { background: transparent; }
@@ -138,7 +126,8 @@ body {
   gap: 10px;
   align-items: center;
 }
-.todo-item__edit { grid-template-columns: 1fr 160px auto auto; }
+.todo-item__edit { display: none; grid-template-columns: 1fr 160px auto; }
+
 @media (max-width: 600px) {
   .todo-item__row {
     grid-template-columns: 18px 1fr auto;
@@ -146,6 +135,9 @@ body {
   }
   .todo-item__date { justify-self: start; order: 3; }
 }
+
+.todo-item.is-editing .todo-item__row  { display: none; }
+.todo-item.is-editing .todo-item__edit { display: grid; }
 
 .checkbox { width: 18px; height: 18px; accent-color: var(--ok); }
 
@@ -163,6 +155,7 @@ body {
 .todo-item__handle {
   width: 18px; height: 18px;
   display: inline-block;
+  user-select: none;
   background:
     linear-gradient(#8fa3c6 0 0) left 4px top 4px/2px 2px no-repeat,
     linear-gradient(#8fa3c6 0 0) left 4px center/2px 2px no-repeat,

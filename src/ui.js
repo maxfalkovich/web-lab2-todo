@@ -6,7 +6,7 @@ export function buildApp(root, initialView, handlers) {
     view: {
       filter: initialView?.filter || 'all',
       sort: initialView?.sort || 'none',
-      q: ''
+      q: '' // поиск не сохраняем
     }
   };
 
@@ -97,9 +97,14 @@ export function buildApp(root, initialView, handlers) {
     handlers.onViewChange({ filter: state.view.filter, sort: state.view.sort });
   });
 
+  function requestDataAndUpdate() {
+    const base = handlers.getVisible(state.view);
+    update(base);
+  }
+
   searchInput.addEventListener('input', () => {
     state.view.q = searchInput.value || '';
-    render();
+    requestDataAndUpdate();
   });
 
   // Делегирование событий списка
@@ -115,11 +120,7 @@ export function buildApp(root, initialView, handlers) {
     if (e.target.closest('.js-edit')) {
       li.classList.add('is-editing');
       const input = li.querySelector('.edit__title');
-      if (input) input.focus();
-      return;
-    }
-    if (e.target.closest('.js-cancel')) {
-      li.classList.remove('is-editing');
+      if (input) { input.value = input.value; input.focus(); }
       return;
     }
     if (e.target.closest('.js-save')) {
@@ -128,16 +129,32 @@ export function buildApp(root, initialView, handlers) {
       const due = dueInput?.value ? dueInput.value : null;
       if (!title) return;
       handlers.onEdit(id, { title, due });
+      li.classList.remove('is-editing');
       return;
     }
   });
 
+  // Смена статуса выполнено/не выполнено
   list.addEventListener('change', (e) => {
     const cb = e.target.closest('input[type="checkbox"].js-toggle');
     if (!cb) return;
     const li = cb.closest('li[data-id]');
     if (!li) return;
     handlers.onToggle(li.dataset.id, cb.checked);
+  });
+
+  // Сохранение по Enter в режиме редактирования
+  list.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const li = e.target.closest('li.is-editing[data-id]');
+    if (!li) return;
+    e.preventDefault();
+    const title = li.querySelector('.edit__title')?.value?.trim() || '';
+    const dueInput = li.querySelector('.edit__date');
+    const due = dueInput?.value ? dueInput.value : null;
+    if (!title) return;
+    handlers.onEdit(li.dataset.id, { title, due });
+    li.classList.remove('is-editing');
   });
 
   // Рендер одной задачи
@@ -147,6 +164,7 @@ export function buildApp(root, initialView, handlers) {
       dataset: { id: task.id }
     });
 
+    // View mode
     const toggle = el('input', { type: 'checkbox', className: 'checkbox js-toggle', checked: task.completed, title: 'Готово' });
     const title = el('span', { className: 'todo-item__title', text: task.title });
 
@@ -164,20 +182,21 @@ export function buildApp(root, initialView, handlers) {
       editBtn, delBtn
     ]);
 
+    // Edit mode
     const editTitle = el('input', { type: 'text', className: 'input edit__title', value: task.title });
     const editDate  = el('input', { type: 'date', className: 'input input--date edit__date', value: task.due || '' });
     const saveBtn   = el('button', { className: 'btn btn--primary js-save', type: 'button', text: 'Сохранить' });
-    const cancelBtn = el('button', { className: 'btn btn--ghost js-cancel', type: 'button', text: 'Отмена' });
 
     const editRow = el('div', { className: 'todo-item__edit' }, [
       editTitle, editDate,
       el('div', { className: 'spacer' }),
-      saveBtn, cancelBtn
+      saveBtn
     ]);
 
     li.appendChild(viewRow);
     li.appendChild(editRow);
 
+    // DnD доступен только при sort === 'none'
     li.draggable = !!dragEnabled;
 
     return li;
@@ -190,7 +209,8 @@ export function buildApp(root, initialView, handlers) {
     sortSel.value = state.view.sort;
 
     // счётчики
-    const total = data.length ? data.length : (handlers.peekAllCount?.() ?? 0);
+    const totalBase = handlers.getVisible(state.view);
+    const total = totalBase.length;
     const active = handlers.peekActiveCount?.() ?? 0;
     stats.textContent = `Всего: ${total} · Активных: ${active}`;
 
@@ -208,7 +228,7 @@ export function buildApp(root, initialView, handlers) {
   }
 
   // первичная инициализация
-  update(handlers.getVisible(state.view));
+  requestDataAndUpdate();
 
   return {
     state,

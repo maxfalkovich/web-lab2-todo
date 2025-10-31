@@ -1,5 +1,5 @@
 export function attachDnD(listEl, options) {
-  let draggedId = null;
+  let draggedLi = null;
 
   function enabled() {
     try { return !!options.enabled(); } catch { return false; }
@@ -9,46 +9,56 @@ export function attachDnD(listEl, options) {
     if (!enabled()) { e.preventDefault(); return; }
     const li = e.target.closest('li[data-id]');
     if (!li) { e.preventDefault(); return; }
-    draggedId = li.dataset.id;
+    draggedLi = li;
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', draggedId);
+    e.dataTransfer.setData('text/plain', li.dataset.id);
     li.classList.add('dragging');
   });
 
-  listEl.addEventListener('dragend', (e) => {
-    const li = e.target.closest('li[data-id]');
-    if (li) li.classList.remove('dragging');
-    draggedId = null;
+  listEl.addEventListener('dragend', () => {
+    draggedLi?.classList.remove('dragging');
+    draggedLi = null;
   });
 
   listEl.addEventListener('dragover', (e) => {
     if (!enabled()) return;
     e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
   });
 
   listEl.addEventListener('drop', (e) => {
     if (!enabled()) return;
     e.preventDefault();
+    if (!draggedLi) return;
 
-    if (!draggedId) return;
-    const all = Array.from(listEl.querySelectorAll('li[data-id]'));
-    let order = all.map(li => li.dataset.id).filter(id => id !== draggedId);
-
-    const targetLi = e.target.closest('li[data-id]');
-    if (!targetLi) {
-      order.push(draggedId);
+    const beforeEl = getElementBeforeY(listEl, e.clientY);
+    if (beforeEl == null) {
+      listEl.appendChild(draggedLi);
     } else {
-      const targetId = targetLi.dataset.id;
-      if (targetId === draggedId) return;
-      const rect = targetLi.getBoundingClientRect();
-      const before = (e.clientY - rect.top) < rect.height / 2;
-      const idx = order.indexOf(targetId);
-      order.splice(before ? idx : idx + 1, 0, draggedId);
+      listEl.insertBefore(draggedLi, beforeEl);
     }
 
-    if (typeof options.onReorder === 'function') {
-      options.onReorder(order);
-    }
-    draggedId = null;
+    const order = Array.from(listEl.querySelectorAll('li[data-id]'))
+      .map(li => li.dataset.id);
+
+    options.onReorder?.(order);
+
+    draggedLi.classList.remove('dragging');
+    draggedLi = null;
   });
+
+  function getElementBeforeY(container, mouseY) {
+    const items = [...container.querySelectorAll('li[data-id]:not(.dragging)')];
+    let candidate = null;
+
+    for (const el of items) {
+      const rect = el.getBoundingClientRect();
+      const middle = rect.top + rect.height / 2;
+      if (mouseY < middle) {
+        candidate = el;
+        break;
+      }
+    }
+    return candidate;
+  }
 }
