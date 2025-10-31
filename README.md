@@ -1,3 +1,3 @@
 # To-Do list
 
-link:
+link: https://maxfalkovich.github.io/web-lab2-todo/
