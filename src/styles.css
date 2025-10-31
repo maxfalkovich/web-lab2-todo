@@ -83,13 +83,31 @@ body {
 }
 
 .btn {
+  border-radius: 10px;
+  border: 1px solid #283044;
+  background: #0e121a;
+  color: var(--text);
+  padding: 8px 16px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: transform .04s ease, background .15s ease, border-color .15s ease;
 }
 .btn:active { transform: translateY(1px); }
-.btn--primary { background: linear-gradient(180deg, var(--accent) 0%, #3b82f6 100%); border-color: #3b82f6; color: #fff; }
+.btn--primary { 
+    background: linear-gradient(180deg, var(--accent) 0%, #3b82f6 100%); 
+    border-color: #3b82f6; 
+    color: #fff;
+}
 .btn--ghost   { background: transparent; }
-.btn--danger  { background: #1a0e10; border-color: #3a0c13; color: #ff9aa3; }
+.btn--danger {
+  background: #1a0e10;
+  border-color: #3a0c13;
+  color: #ff9aa3;
+  border-radius: 12px;
+}
 .btn--danger:hover { border-color: var(--danger); color: #ffc2c7; }
 
 .main {
@@ -119,10 +137,15 @@ body {
   outline: 2px dashed var(--accent-2);
 }
 
-.todo-item__row,
-.todo-item__edit {
+.todo-item__row {
   display: grid;
-  grid-template-columns: 18px 1fr 140px auto auto auto;
+  grid-template-columns: 18px 22px 1fr 140px auto auto auto;
+  gap: 10px;
+  align-items: center;
+}
+.todo-item__edit {
+  display: none;
+  grid-template-columns: 1fr 160px auto;
   gap: 10px;
   align-items: center;
 }
@@ -152,20 +175,9 @@ body {
   color: #8b94a6;
 }
 
-.todo-item__handle {
-  width: 18px; height: 18px;
-  display: inline-block;
-  user-select: none;
-  background:
-    linear-gradient(#8fa3c6 0 0) left 4px top 4px/2px 2px no-repeat,
-    linear-gradient(#8fa3c6 0 0) left 4px center/2px 2px no-repeat,
-    linear-gradient(#8fa3c6 0 0) left 4px bottom 4px/2px 2px no-repeat,
-    linear-gradient(#8fa3c6 0 0) right 4px top 4px/2px 2px no-repeat,
-    linear-gradient(#8fa3c6 0 0) right 4px center/2px 2px no-repeat,
-    linear-gradient(#8fa3c6 0 0) right 4px bottom 4px/2px 2px no-repeat;
-  opacity: .8;
-}
-.todo-item[draggable="true"] .todo-item__handle { cursor: grab; }
-.todo-item[draggable="true"]:active .todo-item__handle { cursor: grabbing; }
+.todo-item__handle { user-select: none; }
+.todo-item[draggable="true"] .todo-item__handle,
+.todo-item .todo-item__handle[draggable="true"] { cursor: grab; }
+.todo-item .todo-item__handle[draggable="true"]:active { cursor: grabbing; }
 
 .spacer { flex: 1; }

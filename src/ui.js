@@ -6,7 +6,7 @@ export function buildApp(root, initialView, handlers) {
     view: {
       filter: initialView?.filter || 'all',
       sort: initialView?.sort || 'none',
-      q: '' // поиск не сохраняем
+      q: ''
     }
   };
 
@@ -75,7 +75,7 @@ export function buildApp(root, initialView, handlers) {
     onReorder: (idOrder) => handlers.onReorder(idOrder)
   });
 
-  // Обработчики формы добавления
+  // Добавление
   addForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const title = addTitle.value.trim();
@@ -120,7 +120,7 @@ export function buildApp(root, initialView, handlers) {
     if (e.target.closest('.js-edit')) {
       li.classList.add('is-editing');
       const input = li.querySelector('.edit__title');
-      if (input) { input.value = input.value; input.focus(); }
+      if (input) input.focus();
       return;
     }
     if (e.target.closest('.js-save')) {
@@ -165,13 +165,12 @@ export function buildApp(root, initialView, handlers) {
     });
 
     // View mode
+    const handle = el('span', { className: 'todo-item__handle', title: dragEnabled ? 'Перетащите за эти точки' : 'DnD доступен при «Без сортировки»' });
     const toggle = el('input', { type: 'checkbox', className: 'checkbox js-toggle', checked: task.completed, title: 'Готово' });
     const title = el('span', { className: 'todo-item__title', text: task.title });
 
     const dateText = task.due ? isoToRu(task.due) : '';
     const dateEl = el('time', { className: 'todo-item__date', datetime: task.due || '', text: dateText });
-
-    const handle = el('span', { className: 'todo-item__handle', title: dragEnabled ? 'Перетащите для изменения порядка' : 'DnD доступен только при «Без сортировки»' });
 
     const editBtn = el('button', { className: 'btn btn--ghost js-edit', type: 'button', text: 'Редактировать' });
     const delBtn  = el('button', { className: 'btn btn--danger js-delete', type: 'button', text: 'Удалить' });
@@ -188,27 +187,24 @@ export function buildApp(root, initialView, handlers) {
     const saveBtn   = el('button', { className: 'btn btn--primary js-save', type: 'button', text: 'Сохранить' });
 
     const editRow = el('div', { className: 'todo-item__edit' }, [
-      editTitle, editDate,
-      el('div', { className: 'spacer' }),
-      saveBtn
+      editTitle, editDate, saveBtn
     ]);
 
     li.appendChild(viewRow);
     li.appendChild(editRow);
 
-    // DnD доступен только при sort === 'none'
-    li.draggable = !!dragEnabled;
+    // DnD
+    li.draggable = false;
+    handle.draggable = !!dragEnabled;
 
     return li;
   }
 
   // Публичный render
   function render(data = []) {
-    // обновляем селекты/поиск
     filterSel.value = state.view.filter;
     sortSel.value = state.view.sort;
 
-    // счётчики
     const totalBase = handlers.getVisible(state.view);
     const total = totalBase.length;
     const active = handlers.peekActiveCount?.() ?? 0;
@@ -219,9 +215,7 @@ export function buildApp(root, initialView, handlers) {
     for (const t of data) list.appendChild(renderItem(t, dragEnabled));
   }
 
-  // метод для внешнего обновления
   function update(dataArray) {
-    // применяем поиск только на уровне UI
     const q = (state.view.q || '').trim().toLowerCase();
     const filtered = q ? dataArray.filter(t => t.title.toLowerCase().includes(q)) : dataArray;
     render(filtered);
