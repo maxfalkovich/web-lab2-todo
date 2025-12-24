@@ -51,9 +51,10 @@ export class TaskStore {
     this.tasks.sort((a, b) => {
       const pa = idPos.has(a.id) ? idPos.get(a.id) : Number.MAX_SAFE_INTEGER;
       const pb = idPos.has(b.id) ? idPos.get(b.id) : Number.MAX_SAFE_INTEGER;
+      if (pa === pb) return (a.order ?? 0) - (b.order ?? 0);
       return pa - pb;
     });
-    this._normalizeOrder();
+    this.tasks.forEach((t, i) => { t.order = i + 1; });
   }
 
   query(view) {
